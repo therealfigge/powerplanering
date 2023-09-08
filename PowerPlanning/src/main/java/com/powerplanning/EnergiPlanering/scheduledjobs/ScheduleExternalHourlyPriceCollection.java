@@ -4,10 +4,10 @@
  */
 package com.powerplanning.EnergiPlanering.scheduledjobs;
 
-//import java.text.SimpleDateFormat;
-//import java.util.Date;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import org.apache.commons.io.IOUtils;
+import java.net.URL;
+import java.time.LocalDateTime;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -18,17 +18,46 @@ import org.springframework.stereotype.Component;
 @Component
 public class ScheduleExternalHourlyPriceCollection {
     
-    /*private static final Logger log = LoggerFactory.getLogger(ScheduleExternalHourlyPriceCollection.class);
-    
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-    
-    @Scheduled(fixedRate = 5000)
-    public void reportCurrentTime() {
-        log.info("The time is now {}", dateFormat.format(new Date()));
-    }*/
-    
+    LocalDateTime currentDate = LocalDateTime.now();
+    String day = String.valueOf(currentDate.getDayOfMonth());
+    String month = String.valueOf(currentDate.getMonthValue());
+    String year = String.valueOf(currentDate.getYear());
+    String urlSe1 = "";
+        
+    /*
+    Method: execute
+    Description: The method reads api data that specifies hourly power prices
+    in the areas in Sweden. 
+    Todo: Currently it is a raw string that needs to be divided and then entered
+    to a db with a Spring Boot post endpoint.
+    */
     @Scheduled(fixedRate=5000)
-    public void execute() {
-        System.out.println("Scheduled job is executed");
+    public void execute() throws IOException {
+        if(day.length()==1) day = "0" + day;
+        if(month.length()==1) month = "0" + month;
+        
+        urlSe1 = "https://www.elprisetjustnu.se/api/v1/prices/" + year + "/" + month + "-" + day + "_SE1.json";
+        
+        String json = IOUtils.toString(new URL(urlSe1), "UTF-8");
+        
+        System.out.println("JSON: " + json);
+        
+        System.out.println("Year: " + year + ", Month: " + month + ", Day: " + day + ", Link SE1: " + urlSe1);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
